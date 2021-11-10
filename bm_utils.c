@@ -374,32 +374,22 @@ tbl_open(int tbl, char *mode)
         fprintf(stderr, "stat(%s) failed.\n", fullpath);
         exit(-1);
         }
-    if (S_ISREG(fstats.st_mode) && !force && *mode != 'r' )
+    /*if (S_ISREG(fstats.st_mode) && !force && *mode != 'r' )
         {
-        sprintf(prompt, "Do you want to overwrite %s ?", fullpath);
+         sprintf(prompt, "Do you want to overwrite %s ?", fullpath);
         if (!yes_no(prompt))
             exit(0);
-        }
+        } */
 
     if (S_ISFIFO(fstats.st_mode))
         {
         retcode =
-            open(fullpath, ((*mode == 'r')?O_RDONLY:O_WRONLY)|O_CREAT);
+            open(fullpath, ((*mode == 'r')?O_RDONLY:O_WRONLY)|O_CREAT, 0644);
         f = fdopen(retcode, mode);
         }
     else{
 
-#ifdef LINUX
-      /* allow large files on Linux */
-      /*use open to first to get the in fd and apply regular fdopen*/
-
-	/*cheng: Betty mentioned about write mode problem here, added 066*/
-      retcode =
-		  open(fullpath, ((*mode == 'r')?O_RDONLY:O_WRONLY)|O_CREAT|O_LARGEFILE,0644);
-        f = fdopen(retcode, mode);
-#else
         f = fopen(fullpath, mode);
-#endif
 
     }
     OPEN_CHECK(f, fullpath);
